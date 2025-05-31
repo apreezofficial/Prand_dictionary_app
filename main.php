@@ -1,45 +1,63 @@
-<?php
-$app_name = "Ultimate Dictionary";
-$default_word = isset($_GET['word']) ? htmlspecialchars($_GET['word']) : '';
-$dark_mode = isset($_COOKIE['darkMode']) && $_COOKIE['darkMode'] === 'true';
-?>
-<!DOCTYPE html>
-<html lang="en" class="<?php echo $dark_mode ? 'dark' : ''; ?>">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title><?php echo $app_name; ?></title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            primary: { light: '#3b82f6', dark: '#2563eb' },
-            secondary: { light: '#10b981', dark: '#059669' }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    .word-card { transition: all 0.3s ease; }
-    .word-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-    .dark .word-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
-    #suggestions { max-height: 200px; overflow-y: auto; }
-  </style>
-</head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-  <div class="container mx-auto px-4 py-8">
-    <header class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-primary-light dark:text-primary-dark"><i class="fas fa-book mr-2"></i><?php echo $app_name; ?></h1>
-      <button id="themeToggle" class="p-2 rounded-full bg-gray-300 dark:bg-gray-700">
+  <header class="w-full px-6 py-4 bg-gray-100 dark:bg-gray-800 shadow-md flex justify-between items-center fixed top-0 z-50">
+  <!-- Left: Logo & App Name -->
+  <div class="flex items-center gap-3">
+    <i class="fas fa-book text-2xl text-primary-light dark:text-primary-dark"></i>
+    <h1 class="text-2xl sm:text-3xl font-bold text-primary-light dark:text-primary-dark"><?php echo $app_name; ?></h1>
+  </div>
+
+  <!-- Right: Theme toggle + Profile -->
+  <div class="flex items-center gap-4">
+    <!-- Theme Toggle with Tooltip -->
+    <div class="relative group">
+      <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200">
         <i class="fas <?php echo $dark_mode ? 'fa-sun' : 'fa-moon'; ?>"></i>
       </button>
-    </header>
+      <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        Toggle Theme
+      </span>
+    </div>
 
+    <!-- Profile Picture with Dropdown -->
+    <div class="relative group">
+<?php if (isset($_SESSION['user'])): ?>
+  <!-- Profile picture and dropdown -->
+  <div class="relative group">
+    <img
+      src="<?= htmlspecialchars($_SESSION['user']['profile_pic'] ?? 'assets/img/default-profile.png') ?>"
+      alt="Profile"
+      class="h-10 w-10 rounded-full cursor-pointer border-2 border-red-600 object-cover shadow-md"
+      title="<?= htmlspecialchars($_SESSION['user']['name'] ?? 'User') ?>"
+    />
+    <div
+      class="absolute right-0 mt-2 w-44 bg-gray-50 dark:bg-gray-800 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity text-sm z-20 text-gray-900 dark:text-gray-100"
+    >
+      <p
+        class="px-4 py-2 border-b border-gray-300 dark:border-gray-700 truncate"
+        title="<?= htmlspecialchars($_SESSION['user']['name'] ?? 'User') ?>"
+      >
+        <?= htmlspecialchars($_SESSION['user']['name'] ?? 'User') ?>
+      </p>
+      <a
+        href="logout.php"
+        class="block px-4 py-2 hover:bg-red-600 hover:text-white rounded-b-md transition"
+      >Logout</a>
+    </div>
+  </div>
+<?php else: ?>
+        <!-- Single Login/Signup Button -->
+        <a
+          href="login.php"
+          class="px-4 py-2 rounded-md border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition flex items-center space-x-2"
+        >
+          <i class="fas fa-user-circle"></i>
+          <span>Signin</span>
+        </a>
+        <?php endif; ?>
+  </div>
+</header>
+<?php echo '<div style="height:20px;"></div>';?>
+  <div class="container mx-auto px-4 py-8">
     <div class="max-w-xl mx-auto">
       <div class="relative flex items-center bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <input type="text" id="searchInput" value="<?php echo $default_word; ?>" placeholder="Search for a word..."
@@ -129,136 +147,4 @@ $dark_mode = isset($_COOKIE['darkMode']) && $_COOKIE['darkMode'] === 'true';
       </div>
     </div>
   </div>
-
-  <style>
-    @keyframes shimmer {
-      0% { opacity: 0.5; }
-      50% { opacity: 1; }
-      100% { opacity: 0.5; }
-    }
-    
-    .shimmer {
-      animation: shimmer 1.5s infinite ease-in-out;
-    }
-  </style>
-
-  <script>
-    const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
-    const resultContainer = document.getElementById('resultContainer');
-    const loadingShimmer = document.getElementById('loadingShimmer');
-    const infoText = document.getElementById('infoText');
-    const wordEl = document.getElementById('word');
-    const phoneticEl = document.getElementById('phonetic');
-    const partOfSpeechEl = document.getElementById('partOfSpeech');
-    const definitionsEl = document.getElementById('definitions');
-    const examplesEl = document.getElementById('examples');
-    const synonymsEl = document.getElementById('synonyms');
-    const speakBtn = document.getElementById('speakBtn');
-
-    // Preload audio for faster response
-    let audio = new Audio();
-    
-    function fetchWord(word) {
-      if (!word) return;
-
-      // Show loading shimmer and hide results
-      loadingShimmer.classList.remove("hidden");
-      resultContainer.classList.add("hidden");
-      
-      // Remove "Searching for..." text after a short delay
-      setTimeout(() => {
-        infoText.textContent = "";
-      }, 500);
-
-      fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.title === "No Definitions Found") {
-            alert("Word not found.");
-            loadingShimmer.classList.add("hidden");
-            return;
-          }
-
-          loadingShimmer.classList.add("hidden");
-          resultContainer.classList.remove("hidden");
-
-          const entry = data[0];
-          wordEl.textContent = entry.word;
-          phoneticEl.textContent = entry.phonetics[0]?.text || '';
-          partOfSpeechEl.textContent = entry.meanings[0]?.partOfSpeech || '';
-
-          definitionsEl.innerHTML = '';
-          entry.meanings[0]?.definitions?.forEach(def => {
-            definitionsEl.innerHTML += `<li>${def.definition}</li>`;
-          });
-
-          examplesEl.innerHTML = '';
-          entry.meanings[0]?.definitions?.forEach(def => {
-            if (def.example) {
-              examplesEl.innerHTML += `<li>"${def.example}"</li>`;
-            }
-          });
-
-          synonymsEl.innerHTML = '';
-          const synonyms = entry.meanings[0]?.definitions[0]?.synonyms || [];
-          if (synonyms.length) {
-            synonyms.forEach(s => {
-              synonymsEl.innerHTML += `<span class="bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">${s}</span>`;
-            });
-          } else {
-            synonymsEl.innerHTML = "<p>No synonyms found.</p>";
-          }
-
-          // Pre-fetch audio for faster playback
-          const audioUrl = entry.phonetics[0]?.audio;
-          if (audioUrl) {
-            audio.src = audioUrl;
-            audio.load();
-          }
-
-          speakBtn.onclick = () => {
-            if (audioUrl) {
-              audio.play().catch(e => {
-                // Fallback to speech synthesis if audio playback fails
-                const utterance = new SpeechSynthesisUtterance(entry.word);
-                speechSynthesis.speak(utterance);
-              });
-            } else {
-              const utterance = new SpeechSynthesisUtterance(entry.word);
-              speechSynthesis.speak(utterance);
-            }
-          };
-        })
-        .catch(err => {
-          alert("Error fetching word!");
-          console.error(err);
-          loadingShimmer.classList.add("hidden");
-        });
-    }
-
-    searchBtn.onclick = () => {
-      const word = searchInput.value.trim();
-      if (word) {
-        infoText.textContent = `Searching for: ${word}`;
-        window.location.href = `?word=${encodeURIComponent(word)}`;
-      }
-    };
-
-    searchInput.addEventListener("keypress", e => {
-      if (e.key === "Enter") searchBtn.click();
-    });
-
-    document.getElementById('themeToggle').addEventListener('click', () => {
-      const root = document.documentElement;
-      const isDark = root.classList.toggle('dark');
-      document.cookie = `darkMode=${isDark}; path=/; max-age=31536000`;
-      document.getElementById('themeToggle').innerHTML = `<i class="fas ${isDark ? 'fa-sun' : 'fa-moon'}"></i>`;
-    });
-
-    // Load word on page load if passed via PHP
-    const initialWord = "<?php echo $default_word; ?>";
-    if (initialWord) fetchWord(initialWord);
-  </script>
 </body>
-</html>

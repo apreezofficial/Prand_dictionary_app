@@ -1,4 +1,20 @@
  <!-- Script.php -->
+ 
+   <script>
+    
+    const profileToggle = document.getElementById('profile-toggle');
+    const profileMenu = document.getElementById('profile-menu');
+
+    profileToggle.addEventListener('click', () => {
+      profileMenu.classList.toggle('hidden');
+    });
+
+    window.addEventListener('click', (e) => {
+      if (!profileToggle.contains(e.target) && !profileMenu.contains(e.target)) {
+        profileMenu.classList.add('hidden');
+      }
+    });
+  </script>
   <script>
     const searchInput = document.getElementById('searchInput');
     const searchBtn = document.getElementById('searchBtn');
@@ -33,7 +49,7 @@
         .then(data => {
           if (data.title === "No Definitions Found") {
             Swal.fire({
-    icon: 'error',
+    icon: 'warning',
     toast: true,
     text: "No word found",
     background: 'var(--swal-bg)',
@@ -50,7 +66,7 @@
 });
            setTimeout(() => {
         loadingShimmer.classList.add("hidden");
-      }, 500); 
+      }, 1000); 
             return;
           }
 
@@ -108,16 +124,21 @@
         })
         .catch(err => {
           Swal.fire({
-                    icon: 'error',
-                    toast: 'true',
-                    text: "Error loading user data",
-                    background: '#2C2C2C',
-                    color: '#fff',
-                    showConfirmButton: false,
-                    timer: 800,
-                    timerProgressBar: true,
-                    position: 'top'
-                });
+    icon: 'warning',
+    text: "Error Loading Word Info",
+    toast: true,
+    background: 'var(--swal-bg)',
+    color: 'var(--swal-text)',
+    iconColor: 'var(--swal-icon)',
+    showConfirmButton: false,
+    timer: 1500,
+    timerProgressBar: true,
+    progressBarColor: 'var(--swal-progress)',
+    position: 'top',
+    width: '400px',
+    padding: '0.75rem',
+    backdrop: false
+});
         });
         setTimeout(() => {
         loadingShimmer.classList.add("hidden");

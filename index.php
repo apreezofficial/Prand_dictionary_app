@@ -1,7 +1,5 @@
-<?php
-$app_name = "Prand";
-$default_word = isset($_GET['word']) ? htmlspecialchars($_GET['word']) : '';
-$dark_mode = isset($_COOKIE['darkMode']) && $_COOKIE['darkMode'] === 'true';
+<?php 
+include 'nav.php';
 ?>
 <!DOCTYPE html>
 <html lang="en" class="<?php echo $dark_mode ? 'dark' : ''; ?>">
@@ -12,6 +10,9 @@ $dark_mode = isset($_COOKIE['darkMode']) && $_COOKIE['darkMode'] === 'true';
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <link href="bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="./font-awesome/css/all.css">
+    <script src="/tailwind.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
